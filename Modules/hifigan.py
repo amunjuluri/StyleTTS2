@@ -455,7 +455,9 @@ class Decoder(nn.Module):
                 N = nn.functional.conv1d(N.unsqueeze(1), torch.ones(1, 1, N_down).to('cuda'), padding=N_down//2).squeeze(1)  / N_down
 
         
-        F0 = self.F0_conv(F0_curve.unsqueeze(1))
+        # F0 = self.F0_conv(F0_curve.unsqueeze(1)) > orginal 
+        F0 = self.F0_conv(F0_curve.unsqueeze(-1))
+
         N = self.N_conv(N.unsqueeze(1))
         
         x = torch.cat([asr, F0, N], axis=1)
