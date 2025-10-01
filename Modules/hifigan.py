@@ -456,9 +456,28 @@ class Decoder(nn.Module):
 
         
         # F0 = self.F0_conv(F0_curve.unsqueeze(1)) > orginal 
+        #F0 = self.F0_conv(F0_curve.unsqueeze(1))
+
+        #N = self.N_conv(N.unsqueeze(1))
+        # normalize F0 to [B, T]
+        if F0_curve.dim() == 3 and F0_curve.size(-1) == 1:
+            F0_curve = F0_curve[..., 0]
+        if F0_curve.dim() == 3 and F0_curve.size(1) == 1:
+            F0_curve = F0_curve[:, 0, :]
         F0 = self.F0_conv(F0_curve.unsqueeze(1))
 
-        N = self.N_conv(N.unsqueeze(1))
+        if N_curve.dim() == 3 and N_curve.size(-1) == 1:
+            N_curve = N_curve[..., 0]
+        if N_curve.dim() == 3 and N_curve.size(1) == 1:
+            N_curve = N_curve[:, 0, :]
+        N = self.N_conv(N_curve.unsqueeze(1))
+
+# normalize N to [B, T]
+if N_curve.dim() == 3 and N_curve.size(-1) == 1:
+    N_curve = N_curve[..., 0]
+if N_curve.dim() == 3 and N_curve.size(1) == 1:
+    N_curve = N_curve[:, 0, :]
+N = self.N_conv(N_curve.unsqueeze(1))
         
         x = torch.cat([asr, F0, N], axis=1)
         x = self.encode(x, s)
