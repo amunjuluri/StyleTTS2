@@ -393,13 +393,25 @@ def main(config_path):
                 N_real = log_norm(gt.unsqueeze(1)).squeeze(1)
                 
                 y_rec_gt = wav.unsqueeze(1)
-                y_rec_gt_pred = model.decoder(en, F0_real, N_real, s)
+                #y_rec_gt_pred = model.decoder(en, F0_real, N_real, s)
+                y_rec_gt_pred = model.decoder(
+                    en,
+                    F0_real.squeeze(-1) if F0_real.dim() == 3 else F0_real,
+                    N_real.squeeze(-1) if N_real.dim() == 3 else N_real,
+                    s,
+                )
 
                 wav = y_rec_gt
 
             F0_fake, N_fake = model.predictor.F0Ntrain(p_en, s_dur)
 
-            y_rec = model.decoder(en, F0_fake, N_fake, s)
+            #y_rec = model.decoder(en, F0_fake, N_fake, s)
+            y_rec = model.decoder(
+                en,
+                F0_fake.squeeze(-1) if F0_fake.dim() == 3 else F0_fake,
+                N_fake.squeeze(-1) if N_fake.dim() == 3 else N_fake,
+                s,
+            )
 
             loss_F0_rec =  (F.smooth_l1_loss(F0_real, F0_fake)) / 10
             loss_norm_rec = F.smooth_l1_loss(N_real, N_fake)
@@ -658,7 +670,13 @@ def main(config_path):
 
                     s = model.style_encoder(gt.unsqueeze(1))
 
-                    y_rec = model.decoder(en, F0_fake, N_fake, s)
+                    #y_rec = model.decoder(en, F0_fake, N_fake, s)
+                    y_rec = model.decoder(
+                        en,
+                        F0_fake.squeeze(-1) if F0_fake.dim() == 3 else F0_fake,
+                        N_fake.squeeze(-1) if N_fake.dim() == 3 else N_fake,
+                        s,
+                    )
                     loss_mel = stft_loss(y_rec.squeeze(), wav.detach())
 
                     F0_real, _, F0 = model.pitch_extractor(gt.unsqueeze(1)) 
